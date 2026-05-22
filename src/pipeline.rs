@@ -1,5 +1,7 @@
 use anyhow::{bail, Result};
+use indicatif::{ProgressBar, ProgressStyle};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use crate::converters;
 use crate::detect::Format;
@@ -17,27 +19,40 @@ pub fn run(input: &Path, from: Format, to: Format, output: Option<&str>) -> Resu
         }
     };
 
-    eprintln!("  {} → {}", from.label(), to.label());
+    let pb = ProgressBar::new_spinner();
+    pb.set_style(
+        ProgressStyle::with_template("{spinner:.cyan}  {msg}")
+            .unwrap()
+            .tick_strings(&["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]),
+    );
+    pb.set_message(format!("{} → {}", from.label(), to.label()));
+    pb.enable_steady_tick(Duration::from_millis(80));
 
-    match (&from, &to) {
-        (Format::Json, Format::Csv) => converters::json_csv::json_to_csv(input, &out_path)?,
-        (Format::Csv, Format::Json) => converters::json_csv::csv_to_json(input, &out_path)?,
-        (Format::Json, Format::Markdown) => converters::json_md::json_to_md(input, &out_path)?,
-        (Format::Csv, Format::Markdown) => converters::csv_md::csv_to_md(input, &out_path)?,
-        (Format::Markdown, Format::Html) => converters::md_html::md_to_html(input, &out_path)?,
-        (Format::Markdown, Format::Txt) => converters::txt_md::md_to_txt(input, &out_path)?,
-        (Format::Html, Format::Txt) => converters::html_txt::html_to_txt(input, &out_path)?,
-        (Format::Txt, Format::Markdown) => converters::txt_md::txt_to_md(input, &out_path)?,
-        (Format::Markdown, Format::Pdf)
-        | (Format::Html, Format::Pdf)
-        | (Format::Txt, Format::Pdf) => converters::pdf::via_pandoc(input, &out_path)?,
-        (f, t) => bail!(
-            "conversion {} → {} is not supported yet",
-            f.label(),
-            t.label()
-        ),
-    }
+    let result = convert(input, &from, &to, &out_path);
 
-    eprintln!("  done → {}", out_path.display());
+    pb.finish_and_clear();
+    result?;
+    eprintln!("  \x1b[32m✓\x1b[0m  {}", out_path.display());
     Ok(())
+}
+
+fn convert(input: &Path, from: &Format, to: &Format, out_path: &Path) -> Result<()> {
+    match (from, to) {
+        (Format::Json, Format::Csv)      => converters::json_csv::json_to_csv(input, out_path),
+        (Format::Csv,  Format::Json)     => converters::json_csv::csv_to_json(input, out_path),
+        (Format::Json, Format::Markdown) => converters::json_md::json_to_md(input, out_path),
+        (Format::Csv,  Format::Markdown) => converters::csv_md::csv_to_md(input, out_path),
+        (Format::Markdown, Format::Html) => converters::md_html::md_to_html(input, out_path),
+        (Format::Markdown, Format::Txt)  => converters::txt_md::md_to_txt(input, out_path),
+        (Format::Html, Format::Txt)      => converters::html_txt::html_to_txt(input, out_path),
+        (Format::Txt,  Format::Markdown) => converters::txt_md::txt_to_md(input, out_path),
+        (Format::Markdown, Format::Pdf)
+        | (Format::Html,   Format::Pdf)
+        | (Format::Txt,    Format::Pdf)
+        | (Format::Docx,   Format::Pdf)
+        | (Format::Docx,   Format::Markdown)
+        | (Format::Docx,   Format::Html)
+        | (Format::Docx,   Format::Txt)  => converters::pdf::via_pandoc(input, out_path),
+        (f, t) => bail!("conversion {} → {} is not supported yet", f.label(), t.label()),
+    }
 }

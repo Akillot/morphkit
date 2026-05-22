@@ -9,28 +9,31 @@ pub enum Format {
     Html,
     Txt,
     Pdf,
+    Docx,
 }
 
 impl Format {
     pub fn ext(&self) -> &str {
         match self {
-            Format::Json => "json",
-            Format::Csv => "csv",
+            Format::Json     => "json",
+            Format::Csv      => "csv",
             Format::Markdown => "md",
-            Format::Html => "html",
-            Format::Txt => "txt",
-            Format::Pdf => "pdf",
+            Format::Html     => "html",
+            Format::Txt      => "txt",
+            Format::Pdf      => "pdf",
+            Format::Docx     => "docx",
         }
     }
 
     pub fn label(&self) -> &str {
         match self {
-            Format::Json => "JSON",
-            Format::Csv => "CSV",
+            Format::Json     => "JSON",
+            Format::Csv      => "CSV",
             Format::Markdown => "Markdown",
-            Format::Html => "HTML",
-            Format::Txt => "TXT",
-            Format::Pdf => "PDF",
+            Format::Html     => "HTML",
+            Format::Txt      => "TXT",
+            Format::Pdf      => "PDF",
+            Format::Docx     => "DOCX",
         }
     }
 }
@@ -42,12 +45,13 @@ pub fn from_path(path: &Path) -> Result<Format> {
 
 pub fn from_ext(ext: &str) -> Result<Format> {
     match ext.to_lowercase().as_str() {
-        "json" => Ok(Format::Json),
-        "csv" => Ok(Format::Csv),
-        "md" | "markdown" => Ok(Format::Markdown),
-        "html" | "htm" => Ok(Format::Html),
-        "txt" | "text" => Ok(Format::Txt),
-        "pdf" => Ok(Format::Pdf),
+        "json"           => Ok(Format::Json),
+        "csv"            => Ok(Format::Csv),
+        "md" | "markdown"=> Ok(Format::Markdown),
+        "html" | "htm"   => Ok(Format::Html),
+        "txt" | "text"   => Ok(Format::Txt),
+        "pdf"            => Ok(Format::Pdf),
+        "docx"           => Ok(Format::Docx),
         other => bail!("unsupported format: '{}'", other),
     }
 }
