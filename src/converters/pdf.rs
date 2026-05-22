@@ -8,7 +8,7 @@ pub fn via_pandoc(input: &Path, output: &Path) -> Result<()> {
         .arg("-o")
         .arg(output)
         .status()
-        .context("pandoc not found\ninstall: brew install pandoc")?;
+        .context("pandoc not found — install: https://pandoc.org/installing.html")?;
 
     if !status.success() {
         bail!("pandoc exited with error");

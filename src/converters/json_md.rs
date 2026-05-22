@@ -124,7 +124,7 @@ mod tests {
     }
 
     #[test]
-    fn empty_array_returns_placeholder() {
+    fn escape_cell_empty_string() {
         assert_eq!(escape_cell(""), "");
     }
 }

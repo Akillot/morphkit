@@ -128,15 +128,10 @@ mod tests {
     #[test]
     fn block_elements_add_newlines() {
         let out = strip_tags("<h1>Title</h1><p>Body</p>");
-        assert!(out.contains("Title"));
-        assert!(out.contains("Body"));
-        let mut saw_title = false;
-        let mut saw_body = false;
-        for line in out.lines() {
-            if line.contains("Title") { saw_title = true; }
-            if line.contains("Body")  { saw_body  = true; }
-        }
-        assert!(saw_title && saw_body);
+        let title_pos = out.find("Title").unwrap();
+        let body_pos = out.find("Body").unwrap();
+        assert!(title_pos < body_pos);
+        assert!(out[title_pos..body_pos].contains('\n'));
     }
 
     #[test]
