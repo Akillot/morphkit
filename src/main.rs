@@ -7,10 +7,10 @@ mod detect;
 mod pipeline;
 
 #[derive(Parser)]
-#[command(name = "morphkit")]
+#[command(name = "morph")]
 #[command(version)]
 #[command(about = "Universal file converter — zero bullshit setup")]
-#[command(override_usage = "morphkit <file> <format> [-o <output>]")]
+#[command(override_usage = "morph <file> <format> [-o <output>]")]
 struct Args {
     input: String,
     format: String,

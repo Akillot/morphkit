@@ -5,7 +5,7 @@ edition = "2021"
 description = "Universal file converter — zero bullshit setup"
 
 [[bin]]
-name = "morphkit"
+name = "morph"
 path = "src/main.rs"
 
 [dependencies]

@@ -3,13 +3,13 @@
 Zero-config file format converter for the terminal.
 
 ```
-$ morphkit data.json csv
+$ morph data.json csv
   ✓  data.csv
 
-$ morphkit report.md html
+$ morph report.md html
   ✓  report.html
 
-$ morphkit contract.docx pdf
+$ morph contract.docx pdf
   ✓  contract.pdf
 ```
 
@@ -34,13 +34,13 @@ cd morphkit
 cargo build --release
 ```
 
-The binary lands at `target/release/morphkit`. PDF and DOCX conversions require Pandoc — see https://pandoc.org/installing.html.
+The binary lands at `target/release/morph`. PDF and DOCX conversions require Pandoc — see https://pandoc.org/installing.html.
 
 ## Usage
 
 ```
-morphkit <file> <format>
-morphkit <file> <format> -o <output>
+morph <file> <format>
+morph <file> <format> -o <output>
 ```
 
 Output is named after the input with the new extension. Pass `-o` to override.
@@ -59,9 +59,9 @@ Format detection: src/detect.rs
 Conversion dispatch: src/pipeline.rs
 Converters: src/converters/ (one file per format pair)
 Run: cargo run -- <input-file> <output-format>
-Build: cargo build --release → target/release/morphkit
+Build: cargo build --release → target/release/morph
 
-CLI: morphkit <file> <format> [-o <output>]
+CLI: morph <file> <format> [-o <output>]
 Format is inferred from the input file extension.
 Output format is a plain string: json, csv, md, html, txt, pdf, docx.
 
