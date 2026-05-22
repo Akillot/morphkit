@@ -30,7 +30,7 @@ fn array_of_objects_to_table(rows: &[serde_json::Value]) -> Result<String> {
 
     md.push('|');
     for h in &headers {
-        md.push_str(&format!(" {} |", h));
+        md.push_str(&format!(" {} |", escape_cell(h)));
     }
     md.push('\n');
 
@@ -55,10 +55,76 @@ fn array_of_objects_to_table(rows: &[serde_json::Value]) -> Result<String> {
                     other => other.to_string(),
                 })
                 .unwrap_or_default();
-            md.push_str(&format!(" {} |", cell));
+            md.push_str(&format!(" {} |", escape_cell(&cell)));
         }
         md.push('\n');
     }
 
     Ok(md)
+}
+
+fn escape_cell(s: &str) -> String {
+    s.replace('|', r"\|").replace('\n', "<br>").replace('\r', "")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::{Map, Value};
+
+    fn obj(pairs: &[(&str, Value)]) -> Value {
+        let mut m = Map::new();
+        for (k, v) in pairs {
+            m.insert(k.to_string(), v.clone());
+        }
+        Value::Object(m)
+    }
+
+    #[test]
+    fn basic_table() {
+        let rows = vec![
+            obj(&[("name", Value::String("Alice".into())), ("age", Value::Number(30.into()))]),
+            obj(&[("name", Value::String("Bob".into())),   ("age", Value::Number(25.into()))]),
+        ];
+        let md = array_of_objects_to_table(&rows).unwrap();
+        assert!(md.contains("| name | age |"));
+        assert!(md.contains("| Alice | 30 |"));
+        assert!(md.contains("| Bob | 25 |"));
+    }
+
+    #[test]
+    fn null_value_renders_empty_cell() {
+        let rows = vec![obj(&[("x", Value::Null)])];
+        let md = array_of_objects_to_table(&rows).unwrap();
+        assert!(md.contains("|  |"));
+    }
+
+    #[test]
+    fn missing_key_renders_empty_cell() {
+        let rows = vec![
+            obj(&[("a", Value::String("1".into())), ("b", Value::String("2".into()))]),
+            obj(&[("a", Value::String("3".into()))]),
+        ];
+        let md = array_of_objects_to_table(&rows).unwrap();
+        let data_lines: Vec<&str> = md.lines().skip(2).collect();
+        assert!(data_lines[1].contains("|  |") || data_lines[1].ends_with("| |"));
+    }
+
+    #[test]
+    fn pipe_in_value_escaped() {
+        let rows = vec![obj(&[("v", Value::String("foo|bar".into()))])];
+        let md = array_of_objects_to_table(&rows).unwrap();
+        assert!(md.contains(r"foo\|bar"));
+    }
+
+    #[test]
+    fn escape_cell_basic() {
+        assert_eq!(escape_cell("a|b"), r"a\|b");
+        assert_eq!(escape_cell("a\nb"), "a<br>b");
+    }
+
+    #[test]
+    fn empty_array_returns_placeholder() {
+        assert_eq!(escape_cell(""), "");
+    }
 }

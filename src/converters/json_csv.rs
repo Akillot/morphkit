@@ -88,3 +88,119 @@ fn coerce_value(s: &str) -> serde_json::Value {
     }
     serde_json::Value::String(s.to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::Value;
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    static ID: AtomicU64 = AtomicU64::new(0);
+
+    fn run_j2c(json: &str) -> String {
+        let id = ID.fetch_add(1, Ordering::SeqCst);
+        let dir = std::env::temp_dir();
+        let inp = dir.join(format!("conkit_j2c_in_{}.json", id));
+        let out = dir.join(format!("conkit_j2c_out_{}.csv", id));
+        std::fs::write(&inp, json).unwrap();
+        json_to_csv(&inp, &out).unwrap();
+        let r = std::fs::read_to_string(&out).unwrap();
+        let _ = std::fs::remove_file(&inp);
+        let _ = std::fs::remove_file(&out);
+        r
+    }
+
+    fn run_c2j(csv: &str) -> Vec<Value> {
+        let id = ID.fetch_add(1, Ordering::SeqCst);
+        let dir = std::env::temp_dir();
+        let inp = dir.join(format!("conkit_c2j_in_{}.csv", id));
+        let out = dir.join(format!("conkit_c2j_out_{}.json", id));
+        std::fs::write(&inp, csv).unwrap();
+        csv_to_json(&inp, &out).unwrap();
+        let s = std::fs::read_to_string(&out).unwrap();
+        let _ = std::fs::remove_file(&inp);
+        let _ = std::fs::remove_file(&out);
+        serde_json::from_str(&s).unwrap()
+    }
+
+    #[test]
+    fn coerce_empty_is_null() {
+        assert_eq!(coerce_value(""), Value::Null);
+    }
+
+    #[test]
+    fn coerce_bool_true() {
+        assert_eq!(coerce_value("true"), Value::Bool(true));
+    }
+
+    #[test]
+    fn coerce_bool_false() {
+        assert_eq!(coerce_value("false"), Value::Bool(false));
+    }
+
+    #[test]
+    fn coerce_integer() {
+        assert_eq!(coerce_value("42"), Value::Number(42.into()));
+    }
+
+    #[test]
+    fn coerce_float() {
+        let got = coerce_value("3.14");
+        assert!(matches!(got, Value::Number(_)));
+        if let Value::Number(n) = got {
+            let f = n.as_f64().unwrap();
+            assert!((f - 3.14).abs() < 1e-9);
+        }
+    }
+
+    #[test]
+    fn coerce_string_fallback() {
+        assert_eq!(coerce_value("hello"), Value::String("hello".into()));
+    }
+
+    #[test]
+    fn j2c_basic_column_order_preserved() {
+        let json = r#"[{"name":"Alice","age":30},{"name":"Bob","age":25}]"#;
+        let csv = run_j2c(json);
+        let lines: Vec<&str> = csv.lines().collect();
+        assert_eq!(lines[0], "name,age");
+        assert_eq!(lines[1], "Alice,30");
+        assert_eq!(lines[2], "Bob,25");
+    }
+
+    #[test]
+    fn j2c_empty_array_produces_empty_file() {
+        assert_eq!(run_j2c("[]").trim(), "");
+    }
+
+    #[test]
+    fn j2c_null_field_is_empty_csv_cell() {
+        let json = r#"[{"a":null,"b":"x"}]"#;
+        let csv = run_j2c(json);
+        assert!(csv.contains(",x") || csv.contains("x,"));
+        let data_line = csv.lines().nth(1).unwrap();
+        assert!(data_line.starts_with(',') || data_line.ends_with(','));
+    }
+
+    #[test]
+    fn c2j_type_coercion() {
+        let rows = run_c2j("name,score,active\nAlice,95,true\n");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0]["name"],   Value::String("Alice".into()));
+        assert_eq!(rows[0]["score"],  Value::Number(95.into()));
+        assert_eq!(rows[0]["active"], Value::Bool(true));
+    }
+
+    #[test]
+    fn c2j_empty_field_is_null() {
+        let rows = run_c2j("a,b\n1,\n");
+        assert_eq!(rows[0]["b"], Value::Null);
+    }
+
+    #[test]
+    fn c2j_multiple_rows() {
+        let rows = run_c2j("x\n1\n2\n3\n");
+        assert_eq!(rows.len(), 3);
+        assert_eq!(rows[2]["x"], Value::Number(3.into()));
+    }
+}

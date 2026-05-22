@@ -10,10 +10,9 @@ mod pipeline;
 #[command(name = "conkit")]
 #[command(version)]
 #[command(about = "Universal file converter — zero bullshit setup")]
-#[command(override_usage = "conkit <file> to <format> [-o <output>]")]
+#[command(override_usage = "conkit <file> <format> [-o <output>]")]
 struct Args {
     input: String,
-    to: String,
     format: String,
     #[arg(short, long, value_name = "file")]
     output: Option<String>,
@@ -21,10 +20,6 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-
-    if args.to != "to" {
-        bail!("usage: conkit <file> to <format>\nexample: conkit data.json to csv");
-    }
 
     let input_path = Path::new(&args.input);
     if !input_path.exists() {
