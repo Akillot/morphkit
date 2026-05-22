@@ -46,8 +46,8 @@ mod tests {
     fn run(csv: &str) -> String {
         let id = ID.fetch_add(1, Ordering::SeqCst);
         let dir = std::env::temp_dir();
-        let inp = dir.join(format!("conkit_csvin_{}.csv", id));
-        let out = dir.join(format!("conkit_csvout_{}.md", id));
+        let inp = dir.join(format!("morphkit_csvin_{}.csv", id));
+        let out = dir.join(format!("morphkit_csvout_{}.md", id));
         std::fs::write(&inp, csv).unwrap();
         csv_to_md(&inp, &out).unwrap();
         let r = std::fs::read_to_string(&out).unwrap();

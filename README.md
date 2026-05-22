@@ -1,6 +1,6 @@
-# conkit Overview
+# morphkit Overview
 
-**conkit** is a command-line file converter written in Rust. It converts between JSON, CSV, Markdown, HTML, plain text, and PDF with a single command and no configuration.
+**morphkit** is a command-line file converter written in Rust. It converts between JSON, CSV, Markdown, HTML, plain text, and PDF with a single command and no configuration.
 
 ## Supported Conversions
 
@@ -17,20 +17,20 @@
 Requires Rust. Clone the repository and build with Cargo.
 
 ```
-git clone https://github.com/your-username/conkit
-cd conkit
+git clone https://github.com/your-username/morphkit
+cd morphkit
 cargo build --release
 ```
 
-The binary will be at `target/release/conkit`. PDF output requires Pandoc — see https://pandoc.org/installing.html.
+The binary will be at `target/release/morphkit`. PDF output requires Pandoc — see https://pandoc.org/installing.html.
 
 ## Usage
 
 ```
-conkit <file> <format>
-conkit data.json csv
-conkit report.md html
-conkit table.csv json -o output.json
+morphkit <file> <format>
+morphkit data.json csv
+morphkit report.md html
+morphkit table.csv json -o output.json
 ```
 
 The output file is named after the input with the new extension. Use `-o` to specify a custom path.
@@ -48,7 +48,7 @@ PDF conversion delegates to Pandoc rather than implementing a renderer from scra
 > Copy and paste into Claude, Cursor, Codex, or GPT:
 
 ```text
-You are working on conkit — a command-line file converter written in Rust.
+You are working on morphkit — a command-line file converter written in Rust.
 
 Stack: Rust 2021 edition, clap (derive), anyhow, serde_json (preserve_order), csv, pulldown-cmark
 Entry point: src/main.rs
@@ -56,9 +56,9 @@ Format detection: src/detect.rs
 Conversion dispatch: src/pipeline.rs
 Converters: src/converters/ (one file per format pair)
 Run: cargo run -- <input-file> <output-format>
-Build: cargo build --release → target/release/conkit
+Build: cargo build --release → target/release/morphkit
 
-CLI: conkit <file> <format> [-o <output>]
+CLI: morphkit <file> <format> [-o <output>]
 Format is inferred from the input file extension.
 Output format is a plain string: json, csv, md, html, txt, pdf.
 

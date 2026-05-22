@@ -1,11 +1,11 @@
 [package]
-name = "conkit"
+name = "morphkit"
 version = "0.1.0"
 edition = "2021"
 description = "Universal file converter — zero bullshit setup"
 
 [[bin]]
-name = "conkit"
+name = "morphkit"
 path = "src/main.rs"
 
 [dependencies]

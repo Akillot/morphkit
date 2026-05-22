@@ -163,8 +163,8 @@ mod tests {
     fn run_t2m(txt: &str) -> String {
         let id = ID.fetch_add(1, Ordering::SeqCst);
         let dir = std::env::temp_dir();
-        let inp = dir.join(format!("conkit_t2m_in_{}.txt", id));
-        let out = dir.join(format!("conkit_t2m_out_{}.md", id));
+        let inp = dir.join(format!("morphkit_t2m_in_{}.txt", id));
+        let out = dir.join(format!("morphkit_t2m_out_{}.md", id));
         std::fs::write(&inp, txt).unwrap();
         txt_to_md(&inp, &out).unwrap();
         let r = std::fs::read_to_string(&out).unwrap();
@@ -176,8 +176,8 @@ mod tests {
     fn run_m2t(md: &str) -> String {
         let id = ID.fetch_add(1, Ordering::SeqCst);
         let dir = std::env::temp_dir();
-        let inp = dir.join(format!("conkit_m2t_in_{}.md", id));
-        let out = dir.join(format!("conkit_m2t_out_{}.txt", id));
+        let inp = dir.join(format!("morphkit_m2t_in_{}.md", id));
+        let out = dir.join(format!("morphkit_m2t_out_{}.txt", id));
         std::fs::write(&inp, md).unwrap();
         md_to_txt(&inp, &out).unwrap();
         let r = std::fs::read_to_string(&out).unwrap();

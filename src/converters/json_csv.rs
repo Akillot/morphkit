@@ -100,8 +100,8 @@ mod tests {
     fn run_j2c(json: &str) -> String {
         let id = ID.fetch_add(1, Ordering::SeqCst);
         let dir = std::env::temp_dir();
-        let inp = dir.join(format!("conkit_j2c_in_{}.json", id));
-        let out = dir.join(format!("conkit_j2c_out_{}.csv", id));
+        let inp = dir.join(format!("morphkit_j2c_in_{}.json", id));
+        let out = dir.join(format!("morphkit_j2c_out_{}.csv", id));
         std::fs::write(&inp, json).unwrap();
         json_to_csv(&inp, &out).unwrap();
         let r = std::fs::read_to_string(&out).unwrap();
@@ -113,8 +113,8 @@ mod tests {
     fn run_c2j(csv: &str) -> Vec<Value> {
         let id = ID.fetch_add(1, Ordering::SeqCst);
         let dir = std::env::temp_dir();
-        let inp = dir.join(format!("conkit_c2j_in_{}.csv", id));
-        let out = dir.join(format!("conkit_c2j_out_{}.json", id));
+        let inp = dir.join(format!("morphkit_c2j_in_{}.csv", id));
+        let out = dir.join(format!("morphkit_c2j_out_{}.json", id));
         std::fs::write(&inp, csv).unwrap();
         csv_to_json(&inp, &out).unwrap();
         let s = std::fs::read_to_string(&out).unwrap();
