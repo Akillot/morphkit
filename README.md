@@ -15,14 +15,15 @@ $ morph contract.docx pdf
 
 ## Formats
 
-|          | json | csv | md | html | txt | pdf |
-| -------- | :--: | :-: | :-: | :--: | :-: | :-: |
-| **json** |  —   |  ✓  |  ✓  |      |     |     |
-| **csv**  |  ✓   |  —  |  ✓  |      |     |     |
-| **md**   |      |     |  —  |  ✓   |  ✓  |  ✓  |
-| **html** |      |     |     |  —   |  ✓  |  ✓  |
-| **txt**  |      |     |  ✓  |      |  —  |  ✓  |
-| **docx** |      |     |  ✓  |  ✓   |  ✓  |  ✓  |
+|           | json | csv | md | html | txt | pdf |
+| --------- | :--: | :-: | :-: | :--: | :-: | :-: |
+| **json**  |  —   |  ✓  |  ✓  |      |     |     |
+| **csv**   |  ✓   |  —  |  ✓  |      |     |     |
+| **md**    |      |     |  —  |  ✓   |  ✓  |  ✓  |
+| **html**  |      |     |     |  —   |  ✓  |  ✓  |
+| **txt**   |      |     |  ✓  |      |  —  |  ✓  |
+| **docx**  |      |     |  ✓  |  ✓   |  ✓  |  ✓  |
+| **xlsx**  |  ✓   |  ✓  |  ✓  |      |     |     |
 
 ## Install
 
@@ -53,11 +54,12 @@ Output is named after the input with the new extension. Pass `-o` to override.
 You are working on morphkit — a command-line file format converter written in Rust.
 
 Stack: Rust 2021 edition, clap (derive), anyhow, serde_json (preserve_order),
-       csv, pulldown-cmark, indicatif
+       csv, pulldown-cmark, indicatif, calamine (xlsx read-only)
 Entry point: src/main.rs
 Format detection: src/detect.rs
 Conversion dispatch: src/pipeline.rs
-Converters: src/converters/ (one file per format pair)
+Converters: src/converters/ (one file per format pair or source format)
+Shared helpers: src/converters/util.rs (coerce_value, escape_cell)
 Run: cargo run -- <input-file> <output-format>
 Build: cargo build --release → target/release/morph
 
@@ -84,6 +86,9 @@ Converters:
 - pdf.rs — delegates to Pandoc via std::process::Command. Handles PDF output
   from Markdown, HTML, TXT, and all DOCX conversions (Pandoc infers formats
   from file extensions).
+- xlsx.rs — read-only XLSX input via calamine. First sheet only, first row =
+  headers. Outputs CSV, JSON, or Markdown. cell_str converts calamine::Data
+  variants to strings; coerce_value and escape_cell come from util.rs.
 
 Non-obvious:
 - serde_json must have features = ["preserve_order"] in Cargo.toml — without
@@ -99,6 +104,8 @@ Non-obvious:
 Known gaps: csv_to_json loads the entire file into memory; no streaming.
 All paths assume UTF-8 — Windows-1252 CSV from Excel will fail.
 No HTML→Markdown or CSV→HTML conversion paths exist yet.
+xlsx.rs is read-only (calamine) — no xlsx output. File-level xlsx tests
+require a checked-in fixture; cell_str helpers are tested directly.
 ```
 
 ## License

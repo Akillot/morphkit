@@ -10,6 +10,7 @@ pub enum Format {
     Txt,
     Pdf,
     Docx,
+    Xlsx,
 }
 
 impl Format {
@@ -22,6 +23,7 @@ impl Format {
             Format::Txt      => "txt",
             Format::Pdf      => "pdf",
             Format::Docx     => "docx",
+            Format::Xlsx     => "xlsx",
         }
     }
 
@@ -34,6 +36,7 @@ impl Format {
             Format::Txt      => "TXT",
             Format::Pdf      => "PDF",
             Format::Docx     => "DOCX",
+            Format::Xlsx     => "XLSX",
         }
     }
 }
@@ -52,6 +55,7 @@ pub fn from_ext(ext: &str) -> Result<Format> {
         "txt" | "text"   => Ok(Format::Txt),
         "pdf"            => Ok(Format::Pdf),
         "docx"           => Ok(Format::Docx),
+        "xlsx"           => Ok(Format::Xlsx),
         other => bail!("unsupported format: '{}'", other),
     }
 }

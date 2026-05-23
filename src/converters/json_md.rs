@@ -1,6 +1,8 @@
 use anyhow::{bail, Context, Result};
 use std::path::Path;
 
+use super::util::escape_cell;
+
 pub fn json_to_md(input: &Path, output: &Path) -> Result<()> {
     let content = std::fs::read_to_string(input)?;
     let value: serde_json::Value = serde_json::from_str(&content).context("invalid JSON")?;
@@ -63,10 +65,6 @@ fn array_of_objects_to_table(rows: &[serde_json::Value]) -> Result<String> {
     Ok(md)
 }
 
-fn escape_cell(s: &str) -> String {
-    s.replace('|', r"\|").replace('\n', "<br>").replace('\r', "")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -117,14 +115,4 @@ mod tests {
         assert!(md.contains(r"foo\|bar"));
     }
 
-    #[test]
-    fn escape_cell_basic() {
-        assert_eq!(escape_cell("a|b"), r"a\|b");
-        assert_eq!(escape_cell("a\nb"), "a<br>b");
-    }
-
-    #[test]
-    fn escape_cell_empty_string() {
-        assert_eq!(escape_cell(""), "");
-    }
 }

@@ -5,3 +5,5 @@ pub mod json_md;
 pub mod md_html;
 pub mod pdf;
 pub mod txt_md;
+pub mod util;
+pub mod xlsx;

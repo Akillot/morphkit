@@ -1,6 +1,8 @@
 use anyhow::Result;
 use std::path::Path;
 
+use super::util::escape_cell;
+
 pub fn csv_to_md(input: &Path, output: &Path) -> Result<()> {
     let mut rdr = csv::Reader::from_path(input)?;
     let headers: Vec<String> = rdr.headers()?.iter().map(|s| s.to_string()).collect();
@@ -32,10 +34,6 @@ pub fn csv_to_md(input: &Path, output: &Path) -> Result<()> {
     Ok(())
 }
 
-fn escape_cell(s: &str) -> String {
-    s.replace('|', r"\|").replace('\n', "<br>").replace('\r', "")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -54,21 +52,6 @@ mod tests {
         let _ = std::fs::remove_file(&inp);
         let _ = std::fs::remove_file(&out);
         r
-    }
-
-    #[test]
-    fn escape_pipe() {
-        assert_eq!(escape_cell("a|b"), r"a\|b");
-    }
-
-    #[test]
-    fn escape_newline_to_br() {
-        assert_eq!(escape_cell("line1\nline2"), "line1<br>line2");
-    }
-
-    #[test]
-    fn escape_crlf_becomes_br() {
-        assert_eq!(escape_cell("a\r\nb"), "a<br>b");
     }
 
     #[test]
