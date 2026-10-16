@@ -2,7 +2,7 @@
 name = "morphkit"
 version = "0.1.0"
 edition = "2021"
-description = "Universal file converter — zero bullshit setup"
+description = "Zero-config converter: docs and data to LLM-ready Markdown"
 
 [[bin]]
 name = "morph"
