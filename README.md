@@ -1,6 +1,6 @@
 # morphkit
 
-Zero-config file format converter for the terminal.
+Zero-config converter: docs and data to LLM-ready Markdown
 
 ```
 $ morph data.json csv
